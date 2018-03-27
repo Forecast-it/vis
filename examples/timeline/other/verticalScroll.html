@@ -20,6 +20,8 @@ zoomKey: 'ctrlKey'</code>
 
 <div id="mytimeline1"></div>
 
+<div id="log"></div>
+
 <h2>With <code>
 horizontalScroll: true,
 verticalScroll: true,
@@ -70,6 +72,8 @@ zoomKey: 'ctrlKey'</code>
     verticalScroll: true,
     zoomKey: 'ctrlKey',
     maxHeight: 200,
+      itemsAlwaysDraggable: false,
+      moveable: false,
     start: new Date(),
     end: new Date(1000*60*60*24 + (new Date()).valueOf()),
   };
@@ -79,6 +83,88 @@ zoomKey: 'ctrlKey'</code>
   options1 = jQuery.extend(options, {});
   var container1 = document.getElementById('mytimeline1');
   timeline1 = new vis.Timeline(container1, items, groups, options1);
+
+  timeline1.on('rangechange', function (properties) {
+      logEvent('rangechange', properties);
+  });
+
+  timeline1.on('rangechanged', function (properties) {
+      logEvent('rangechanged', properties);
+  });
+
+  timeline1.on('select', function (properties) {
+      logEvent('select', properties);
+  });
+
+  timeline1.on('itemover', function (properties) {
+      logEvent('itemover', properties);
+      setHoveredItem(properties.item);
+  });
+
+  timeline1.on('itemout', function (properties) {
+      logEvent('itemout', properties);
+      setHoveredItem('none');
+  });
+
+  timeline1.on('click', function (properties) {
+      logEvent('click', properties);
+  });
+
+  timeline1.on('doubleClick', function (properties) {
+      logEvent('doubleClick', properties);
+  });
+
+  timeline1.on('contextmenu', function (properties) {
+      logEvent('contextmenu', properties);
+  });
+
+  timeline1.on('mouseDown', function (properties) {
+      logEvent('mouseDown', properties);
+  });
+
+  timeline1.on('mouseUp', function (properties) {
+      logEvent('mouseUp', properties);
+  });
+
+  // other possible events:
+
+  // timeline.on('mouseOver', function (properties) {
+  //   logEvent('mouseOver', properties);
+  // });
+
+  // timeline.on("mouseMove", function(properties) {
+  //   logEvent('mouseMove', properties);
+  // });
+
+  items.on('*', function (event, properties) {
+      logEvent(event, properties);
+  });
+
+
+  function stringifyObject (object) {
+      if (!object) return;
+      var replacer = function(key, value) {
+          if (value && value.tagName) {
+              return "DOM Element";
+          } else {
+              return value;
+          }
+      }
+      return JSON.stringify(object, replacer)
+  }
+
+  function logEvent(event, properties) {
+      var log = document.getElementById('log');
+      var msg = document.createElement('div');
+      msg.innerHTML = 'event=' + JSON.stringify(event) + ', ' +
+          'properties=' + stringifyObject(properties);
+      log.firstChild ? log.insertBefore(msg, log.firstChild) : log.appendChild(msg);
+  }
+
+  function setHoveredItem(id) {
+      var hoveredItem = document.getElementById('hoveredItem');
+      hoveredItem.innerHTML = 'hoveredItem=' + id;
+  }
 
   options2 = jQuery.extend(options, {horizontalScroll: true});
   var container2 = document.getElementById('mytimeline2');
